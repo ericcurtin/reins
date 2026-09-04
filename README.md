@@ -25,6 +25,17 @@ You can find Android and Windows releases from [here](https://github.com/ibrahim
 - **Multiple Chat Management**: Easily manage and switch between multiple conversations.
 - **Real-Time Message Streaming**: Get messages instantly as they arrive.
 
+## Using with llmman
+Reins works with any server that speaks the Ollama API, including [llmman](https://github.com/llmmanorg/llmman), a local model runner that serves the Ollama API (alongside OpenAI- and Anthropic-compatible ones) on port 17434.
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/llmmanorg/llmman/main/install.sh | sh
+llmman pull gemma4
+llmman serve
+```
+
+Then set the server address in Reins to `http://localhost:17434`. **Search Local Network** also probes port 17434, so it will find a running llmman server automatically.
+
 ## Mobile Screenshots
 <img src=https://github.com/user-attachments/assets/29c06936-a1ff-430b-b892-3195db01497a alt="Main" height=500>
 <img src=https://github.com/user-attachments/assets/a18f5d7b-d547-4da7-adbe-332349597f69 alt="Configuration" height=500>

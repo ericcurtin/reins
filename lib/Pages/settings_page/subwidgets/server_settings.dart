@@ -261,6 +261,10 @@ class _ServerSettingsState extends State<ServerSettings> {
     }
   }
 
+  /// Default ports of servers speaking the Ollama API:
+  /// Ollama (11434) and llmman (17434, https://github.com/llmmanorg/llmman).
+  static const _serverPorts = [11434, 17434];
+
   static Future<(OllamaRequestState, Uri)> _searchLocalNetwork() async {
     final networkInterfaces = await NetworkInterface.list(
       includeLoopback: true,
@@ -270,16 +274,18 @@ class _ServerSettingsState extends State<ServerSettings> {
     final futures = <Future<(OllamaRequestState, Uri)>>[];
     for (var interface in networkInterfaces) {
       for (var address in interface.addresses) {
-        if (address.isLoopback) {
-          final url = Uri.parse('http://${address.address}:11434');
-          futures.add(_establishServerConnection(url));
-        } else {
-          final segments = address.address.split('.');
-          for (int i = 1; i < 255; i++) {
-            final url = Uri.parse(
-              'http://${segments[0]}.${segments[1]}.${segments[2]}.$i:11434',
-            );
+        for (var port in _serverPorts) {
+          if (address.isLoopback) {
+            final url = Uri.parse('http://${address.address}:$port');
             futures.add(_establishServerConnection(url));
+          } else {
+            final segments = address.address.split('.');
+            for (int i = 1; i < 255; i++) {
+              final url = Uri.parse(
+                'http://${segments[0]}.${segments[1]}.${segments[2]}.$i:$port',
+              );
+              futures.add(_establishServerConnection(url));
+            }
           }
         }
       }
@@ -345,7 +351,7 @@ class _OllamaInfoBottomSheet extends StatelessWidget {
               children: [
                 MarkdownBody(
                   data:
-                      "Ollama is a free platform that enables you to run advanced large language models (LLMs) like Llama 3.3, Phi 3, Mistral, Gemma 2, and more directly on your local machine. This setup enhances privacy, security, and control over your AI interactions. Ollama also allows you to customize and create your own models.\n\nTo get started with Ollama, visit their official website: [ollama.com](https://ollama.com). Here, you can explore various models and download the platform to begin using Ollama.",
+                      "Ollama is a free platform that enables you to run advanced large language models (LLMs) like Llama 3.3, Phi 3, Mistral, Gemma 2, and more directly on your local machine. This setup enhances privacy, security, and control over your AI interactions. Ollama also allows you to customize and create your own models.\n\nTo get started with Ollama, visit their official website: [ollama.com](https://ollama.com). Here, you can explore various models and download the platform to begin using Ollama.\n\nReins also works with other servers that speak the Ollama API, such as [llmman](https://github.com/llmmanorg/llmman), which listens on http://localhost:17434 by default.",
                   styleSheet: context.markdownStyleSheet,
                   onTapLink: (_, href, __) => launchUrlString(href!),
                 ),
